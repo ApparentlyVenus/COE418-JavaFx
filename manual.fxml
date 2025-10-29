@@ -7,6 +7,7 @@
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="application.ManualTableController"
+         fx:id="tabPane"
          prefWidth="1000" prefHeight="700">
 
     <!-- Tab 1: Table Management -->
@@ -61,32 +62,29 @@
 
     <!-- Tab 2: Data Operations -->
     <Tab text="📝 Data Operations">
-        <VBox spacing="15">
+        <ScrollPane fitToWidth="true" fitToHeight="true">
+        <VBox spacing="15" style="-fx-padding: 20;">
             <padding><Insets topRightBottomLeft="20.0"/></padding>
             
             <Label text="Data Operations" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
             
-            <!-- Insert Data -->
+            <!-- NEW: Dynamic Quick Data Entry -->
             <VBox spacing="10" style="-fx-border-color: #2ecc71; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
-                <Label text="Insert Data" style="-fx-font-weight: bold; -fx-text-fill: #27ae60; -fx-font-size: 14;"/>
-                <HBox spacing="10">
-                    <VBox spacing="5">
-                        <Label text="Table:"/>
-                        <TextField fx:id="insertTableField" promptText="table_name" prefWidth="120"/>
-                    </VBox>
-                    <VBox spacing="5">
-                        <Label text="Columns (comma-separated):"/>
-                        <TextField fx:id="insertColumnsField" promptText="name, age, department" prefWidth="200"/>
-                    </VBox>
-                    <VBox spacing="5">
-                        <Label text="Values (comma-separated):"/>
-                        <TextField fx:id="insertValuesField" promptText="John, 25, Engineering" prefWidth="200"/>
-                    </VBox>
-                    <Button text="Insert" onAction="#handleInsertData" 
+                <Label text="🚀 Quick Data Entry" style="-fx-font-weight: bold; -fx-text-fill: #27ae60; -fx-font-size: 14;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Select Table:"/>
+                    <ComboBox fx:id="dataOpsTableComboBox" prefWidth="200" promptText="Choose table"/>
+                    <Button text="Load Form" onAction="#handleDataOpsTableSelected"/>
+                    <Button text="➕ Insert Data" onAction="#handleDynamicInsert" 
                             style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 </HBox>
+                <VBox fx:id="dynamicFormBox" spacing="8" style="-fx-padding: 10; -fx-background-color: #f8f9fa; -fx-border-color: #bdc3c7; -fx-border-width: 1; -fx-border-radius: 3;">
+                    <Label text="Select a table and click 'Load Form' to generate input fields" 
+                           style="-fx-text-fill: #666; -fx-font-style: italic;"/>
+                </VBox>
             </VBox>
             
+          
             <!-- Select Data -->
             <VBox spacing="10" style="-fx-border-color: #3498db; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
                 <Label text="Select Data (with LIMIT)" style="-fx-font-weight: bold; -fx-text-fill: #3498db; -fx-font-size: 14;"/>
@@ -142,7 +140,8 @@
                 </HBox>
             </VBox>
         </VBox>
-    </Tab>
+    </ScrollPane>
+</Tab>
 
     <!-- Tab 3: Advanced Operations -->
     <Tab text="🔗 Advanced Operations">
