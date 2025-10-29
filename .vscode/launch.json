@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch JavaFX Application",
+      "request": "launch",
+      "mainClass": "application.Main",
+      "projectName": "COE418-JavaFx",
+      "vmArgs": "--module-path /usr/share/openjfx/lib --add-modules javafx.controls,javafx.fxml"
+    }
+  ]
+}
