@@ -1,5 +1,5 @@
 services:
-  # MariaDB Database Service (Official Image - Fast!)
+  # MariaDB Database Service
   mariadb:
     image: mariadb:latest
     container_name: javafx-mariadb
@@ -10,7 +10,7 @@ services:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./srcs/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - javafx-network
     restart: unless-stopped
@@ -20,30 +20,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-
-  # JavaFX Application Service (Alpine-based)
-  application:
-    build:
-      context: ./srcs/application
-      dockerfile: Dockerfile
-    container_name: javafx-app
-    environment:
-      DISPLAY: ${DISPLAY}
-      DB_HOST: mariadb
-      DB_PORT: 3306
-      DB_NAME: student_db
-      DB_USER: root
-      DB_PASSWORD: rootpassword
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    networks:
-      - javafx-network
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    stdin_open: true
-    tty: true
-    restart: unless-stopped
 
 networks:
   javafx-network:

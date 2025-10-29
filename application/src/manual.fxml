@@ -6,7 +6,7 @@
 
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
-         fx:controller="application.ManualTableController"
+         fx:controller="application.src.ManualTableController"
          fx:id="tabPane"
          prefWidth="1000" prefHeight="700">
 

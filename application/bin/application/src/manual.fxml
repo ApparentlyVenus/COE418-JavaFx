@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<TabPane xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="application.src.ManualTableController"
+         fx:id="tabPane"
+         prefWidth="1000" prefHeight="700">
+
+    <!-- Tab 1: Table Management -->
+    <Tab text="📊 Table Management">
+        <VBox spacing="15">
+            <padding><Insets topRightBottomLeft="20.0"/></padding>
+            
+            <Label text="MySQL Database Manager - Manual Table Operations" 
+                   style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            
+            <!-- Table List -->
+            <VBox spacing="10">
+                <Label text="Existing Tables:" style="-fx-font-weight: bold;"/>
+                <HBox spacing="10">
+                    <ComboBox fx:id="tablesComboBox" prefWidth="200" promptText="Select a table"/>
+                    <Button text="Refresh Tables" onAction="#initialize"/>
+                </HBox>
+                <TextArea fx:id="structureArea" prefHeight="150" editable="false" 
+                         promptText="Table structure will appear here..." 
+                         style="-fx-font-family: 'Monospace'; -fx-font-size: 12;"/>
+            </VBox>
+            
+            <!-- Create Table -->
+            <VBox spacing="10" style="-fx-border-color: #3498db; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
+                <Label text="Create New Table" style="-fx-font-weight: bold; -fx-text-fill: #3498db; -fx-font-size: 14;"/>
+                <HBox spacing="10">
+                    <VBox spacing="5">
+                        <Label text="Table Name:"/>
+                        <TextField fx:id="tableNameField" promptText="e.g., employees" prefWidth="150"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Columns (SQL syntax):"/>
+                        <TextField fx:id="columnsField" prefWidth="400" 
+                                  promptText="id INT PRIMARY KEY, name VARCHAR(50), salary DECIMAL(10,2)"/>
+                    </VBox>
+                    <Button text="Create Table" onAction="#handleCreateTable" 
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Drop Table -->
+            <VBox spacing="10" style="-fx-border-color: #e74c3c; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
+                <Label text="Drop Table" style="-fx-font-weight: bold; -fx-text-fill: #e74c3c; -fx-font-size: 14;"/>
+                <HBox spacing="10">
+                    <TextField fx:id="dropTableField" promptText="Enter table name to drop" prefWidth="200"/>
+                    <Button text="Drop Table" onAction="#handleDropTable" 
+                            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </Tab>
+
+    <!-- Tab 2: Data Operations -->
+    <Tab text="📝 Data Operations">
+        <ScrollPane fitToWidth="true" fitToHeight="true">
+        <VBox spacing="15" style="-fx-padding: 20;">
+            <padding><Insets topRightBottomLeft="20.0"/></padding>
+            
+            <Label text="Data Operations" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            
+            <!-- NEW: Dynamic Quick Data Entry -->
+            <VBox spacing="10" style="-fx-border-color: #2ecc71; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
+                <Label text="🚀 Quick Data Entry" style="-fx-font-weight: bold; -fx-text-fill: #27ae60; -fx-font-size: 14;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Select Table:"/>
+                    <ComboBox fx:id="dataOpsTableComboBox" prefWidth="200" promptText="Choose table"/>
+                    <Button text="Load Form" onAction="#handleDataOpsTableSelected"/>
+                    <Button text="➕ Insert Data" onAction="#handleDynamicInsert" 
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+                <VBox fx:id="dynamicFormBox" spacing="8" style="-fx-padding: 10; -fx-background-color: #f8f9fa; -fx-border-color: #bdc3c7; -fx-border-width: 1; -fx-border-radius: 3;">
+                    <Label text="Select a table and click 'Load Form' to generate input fields" 
+                           style="-fx-text-fill: #666; -fx-font-style: italic;"/>
+                </VBox>
+            </VBox>
+            
+          
+            <!-- Select Data -->
+            <VBox spacing="10" style="-fx-border-color: #3498db; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
+                <Label text="Select Data (with LIMIT)" style="-fx-font-weight: bold; -fx-text-fill: #3498db; -fx-font-size: 14;"/>
+                <HBox spacing="10">
+                    <VBox spacing="5">
+                        <Label text="Table:"/>
+                        <TextField fx:id="selectTableField" promptText="table_name" prefWidth="150"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Limit:"/>
+                        <TextField fx:id="limitField" promptText="10" prefWidth="80"/>
+                    </VBox>
+                    <Button text="Select" onAction="#handleSelectData" 
+                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Update Data -->
+            <VBox spacing="10" style="-fx-border-color: #f39c12; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
+                <Label text="Update Data" style="-fx-font-weight: bold; -fx-text-fill: #f39c12; -fx-font-size: 14;"/>
+                <HBox spacing="10">
+                    <VBox spacing="5">
+                        <Label text="Table:"/>
+                        <TextField fx:id="updateTableField" promptText="table_name" prefWidth="120"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="SET clause:"/>
+                        <TextField fx:id="updateSetField" promptText="name='John', age=26" prefWidth="200"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="WHERE clause:"/>
+                        <TextField fx:id="updateWhereField" promptText="id=1" prefWidth="150"/>
+                    </VBox>
+                    <Button text="Update" onAction="#handleUpdateData" 
+                            style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Delete Data -->
+            <VBox spacing="10" style="-fx-border-color: #e74c3c; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
+                <Label text="Delete Data" style="-fx-font-weight: bold; -fx-text-fill: #e74c3c; -fx-font-size: 14;"/>
+                <HBox spacing="10">
+                    <VBox spacing="5">
+                        <Label text="Table:"/>
+                        <TextField fx:id="deleteTableField" promptText="table_name" prefWidth="150"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="WHERE clause:"/>
+                        <TextField fx:id="deleteWhereField" promptText="id=1 OR age>60" prefWidth="200"/>
+                    </VBox>
+                    <Button text="Delete" onAction="#handleDeleteData" 
+                            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</Tab>
+
+    <!-- Tab 3: Advanced Operations -->
+    <Tab text="🔗 Advanced Operations">
+        <VBox spacing="15">
+            <padding><Insets topRightBottomLeft="20.0"/></padding>
+            
+            <Label text="Advanced SQL Operations" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            
+            <!-- JOIN Operation -->
+            <VBox spacing="10" style="-fx-border-color: #9b59b6; -fx-border-width: 1; -fx-border-radius: 5; -fx-padding: 15;">
+                <Label text="JOIN Tables" style="-fx-font-weight: bold; -fx-text-fill: #9b59b6; -fx-font-size: 14;"/>
+                <HBox spacing="10">
+                    <VBox spacing="5">
+                        <Label text="Table 1:"/>
+                        <TextField fx:id="joinTable1Field" promptText="employees" prefWidth="120"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Table 2:"/>
+                        <TextField fx:id="joinTable2Field" promptText="departments" prefWidth="120"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="JOIN Condition:"/>
+                        <TextField fx:id="joinConditionField" 
+                                  promptText="employees.dept_id = departments.id" prefWidth="250"/>
+                    </VBox>
+                    <Button text="Execute JOIN" onAction="#handleJoin" 
+                            style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Data Visualization -->
+            <VBox spacing="10">
+                <Label text="Query Results:" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <TableView fx:id="dataTable" prefHeight="300">
+                    <placeholder>
+                        <Label text="Query results will appear here... Run SELECT or JOIN to see data."/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+        </VBox>
+    </Tab>
+</TabPane>
