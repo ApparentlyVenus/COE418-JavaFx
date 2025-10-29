@@ -3,13 +3,18 @@ package application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ManualTableController {
 
     @FXML private TextField tableNameField, columnsField;
-    @FXML private TextField insertTableField, insertColumnsField, insertValuesField;
     @FXML private TextField selectTableField, limitField;
     @FXML private TextField joinTable1Field, joinTable2Field, joinConditionField;
     @FXML private TextField updateTableField, updateSetField, updateWhereField;
@@ -19,11 +24,17 @@ public class ManualTableController {
     @FXML private TableView<ObservableList<String>> dataTable;
     @FXML private TextArea structureArea;
     @FXML private ComboBox<String> tablesComboBox;
+    @FXML private TabPane tabPane;
+    // NEW: Dynamic form components
+    @FXML private VBox dynamicFormBox;
+    @FXML private ComboBox<String> dataOpsTableComboBox;
+    private Map<String, TextField> inputFields = new HashMap<>();
 
     @FXML
     public void initialize() {
         refreshTablesList();
-        
+     // Prevent tab closing
+        tabPane.getTabs().forEach(tab -> tab.setClosable(false));
         // When table selection changes, show its structure
         tablesComboBox.setOnAction(e -> {
             String selectedTable = tablesComboBox.getSelectionModel().getSelectedItem();
@@ -31,16 +42,121 @@ public class ManualTableController {
                 showTableStructure(selectedTable);
             }
         });
+        
+        // Initialize data operations table combo box
+        dataOpsTableComboBox.setItems(FXCollections.observableArrayList(DBHandler.getAllTables()));
     }
 
     private void refreshTablesList() {
         List<String> tables = DBHandler.getAllTables();
-        tablesComboBox.setItems(FXCollections.observableArrayList(tables));
+        ObservableList<String> tableList = FXCollections.observableArrayList(tables);
+        tablesComboBox.setItems(tableList);
+        dataOpsTableComboBox.setItems(tableList);
     }
 
     private void showTableStructure(String tableName) {
         String structure = DBHandler.getTableStructure(tableName);
         structureArea.setText(structure);
+    }
+
+    // ✅ DYNAMIC FORM: Load form when table is selected in Data Operations tab
+    @FXML
+    private void handleDataOpsTableSelected() {
+        String selectedTable = dataOpsTableComboBox.getSelectionModel().getSelectedItem();
+        if (selectedTable != null) {
+            createDynamicForm(selectedTable);
+        }
+    }
+    
+    // ✅ DYNAMIC FORM: Create input fields based on table columns
+    private void createDynamicForm(String tableName) {
+        dynamicFormBox.getChildren().clear();
+        inputFields.clear();
+        
+        List<String> columns = DBHandler.getTableColumns(tableName);
+        
+        if (columns.isEmpty()) {
+            Label noColumnsLabel = new Label("No editable columns found or table doesn't exist");
+            noColumnsLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-style: italic;");
+            dynamicFormBox.getChildren().add(noColumnsLabel);
+            return;
+        }
+        
+        Label formTitle = new Label("Enter data for: " + tableName);
+        formTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+        dynamicFormBox.getChildren().add(formTitle);
+        
+        for (String column : columns) {
+            HBox row = new HBox(10);
+            row.setAlignment(Pos.CENTER_LEFT);
+            
+            Label label = new Label(column + ":");
+            label.setPrefWidth(120);
+            label.setStyle("-fx-font-weight: bold;");
+            
+            TextField textField = new TextField();
+            textField.setPromptText("Enter " + column);
+            textField.setPrefWidth(200);
+            
+            inputFields.put(column, textField);
+            
+            row.getChildren().addAll(label, textField);
+            dynamicFormBox.getChildren().add(row);
+        }
+        
+        // Add some spacing
+        dynamicFormBox.getChildren().add(new Label(" "));
+    }
+
+    // ✅ DYNAMIC FORM: Insert data using dynamic form
+    @FXML
+    private void handleDynamicInsert() {
+        String selectedTable = dataOpsTableComboBox.getSelectionModel().getSelectedItem();
+        if (selectedTable == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please select a table first!");
+            return;
+        }
+        
+        List<String> columns = new ArrayList<>();
+        List<String> values = new ArrayList<>();
+        
+        // Collect data from input fields
+        for (Map.Entry<String, TextField> entry : inputFields.entrySet()) {
+            String value = entry.getValue().getText().trim();
+            if (!value.isEmpty()) {
+                columns.add(entry.getKey());
+                values.add(value);
+            }
+        }
+        
+        if (columns.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please enter some data!");
+            return;
+        }
+        
+        // Convert to arrays for DBHandler
+        String[] columnsArray = columns.toArray(new String[0]);
+        String[] valuesArray = values.toArray(new String[0]);
+        
+        if (DBHandler.insertData(selectedTable, columnsArray, valuesArray)) {
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Data inserted successfully into '" + selectedTable + "'!");
+            
+            // Clear all fields
+            for (TextField field : inputFields.values()) {
+                field.clear();
+            }
+            
+            // Refresh the data table view
+            refreshTableData(selectedTable);
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to insert data!");
+        }
+    }
+    
+    // ✅ Refresh table data after insert
+    private void refreshTableData(String tableName) {
+        List<String[]> data = DBHandler.selectData(tableName, 50);
+        displayDataInTable(data);
     }
 
     // ✅ MANUAL TABLE CREATION
@@ -64,34 +180,7 @@ public class ManualTableController {
         }
     }
 
-    // ✅ MANUAL DATA INSERTION
-    @FXML
-    private void handleInsertData() {
-        String tableName = insertTableField.getText().trim();
-        String columnsInput = insertColumnsField.getText().trim();
-        String valuesInput = insertValuesField.getText().trim();
-        
-        if (tableName.isEmpty() || columnsInput.isEmpty() || valuesInput.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Input Error", "All fields are required for insertion!");
-            return;
-        }
-        
-        String[] columns = columnsInput.split(",");
-        String[] values = valuesInput.split(",");
-        
-        // Trim whitespace from each element
-        for (int i = 0; i < columns.length; i++) columns[i] = columns[i].trim();
-        for (int i = 0; i < values.length; i++) values[i] = values[i].trim();
-        
-        if (DBHandler.insertData(tableName, columns, values)) {
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Data inserted into '" + tableName + "'!");
-            insertTableField.clear();
-            insertColumnsField.clear();
-            insertValuesField.clear();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to insert data!");
-        }
-    }
+
 
     // ✅ MANUAL DATA SELECTION WITH LIMIT
     @FXML
