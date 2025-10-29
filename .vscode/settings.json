@@ -1,0 +1,5 @@
+{
+    "java.project.referencedLibraries": [
+        "/usr/share/openjfx/lib/**/*.jar"
+    ]
+}
