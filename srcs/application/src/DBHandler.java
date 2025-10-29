@@ -1,4 +1,4 @@
-package application;
+package application.src;
 
 import java.sql.*;
 import java.util.ArrayList;
