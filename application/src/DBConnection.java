@@ -15,7 +15,7 @@ public class DBConnection {
     
     private static final String URL = "jdbc:mysql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME + "?allowPublicKeyRetrieval=true&useSSL=false";
 
-    private static Connection connection = null;
+    private static Connection connection = null;    
 
     public static Connection getConnection() {
         try {
