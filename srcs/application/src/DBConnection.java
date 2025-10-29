@@ -6,26 +6,32 @@ import java.sql.SQLException;
 import javafx.scene.control.Alert;
 
 public class DBConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/student_db"; 
-    private static final String USER = "root"; 
-    private static final String PASSWORD = "YOUR_PASSWORD";
+    // Read from Docker environment variables or use defaults
+    private static final String DB_HOST = System.getenv("DB_HOST") != null ? System.getenv("DB_HOST") : "localhost";
+    private static final String DB_PORT = System.getenv("DB_PORT") != null ? System.getenv("DB_PORT") : "3306";
+    private static final String DB_NAME = System.getenv("DB_NAME") != null ? System.getenv("DB_NAME") : "student_db";
+    private static final String USER = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
+    private static final String PASSWORD = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "rootpassword";
+    
+    private static final String URL = "jdbc:mysql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME + "?allowPublicKeyRetrieval=true&useSSL=false";
 
     private static Connection connection = null;
 
     public static Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
-                // Ensure database exists
-                Connection tempConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", USER, PASSWORD);
-                tempConn.createStatement().execute("CREATE DATABASE IF NOT EXISTS student_db");
-                tempConn.close();
-                
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("✅ Connected to MySQL successfully!");
+                System.out.println("✅ Connected to MariaDB successfully!");
+                System.out.println("   Host: " + DB_HOST + ":" + DB_PORT);
+                System.out.println("   Database: " + DB_NAME);
             }
         } catch (SQLException e) {
             System.out.println("❌ Database connection failed: " + e.getMessage());
-            showAlert("Database Error", "Cannot connect to MySQL. Make sure MySQL is running on port 3306.");
+            System.out.println("   URL: " + URL);
+            showAlert("Database Error", "Cannot connect to MariaDB.\n" +
+                     "Host: " + DB_HOST + ":" + DB_PORT + "\n" +
+                     "Database: " + DB_NAME + "\n" +
+                     "Error: " + e.getMessage());
         }
         return connection;
     }
