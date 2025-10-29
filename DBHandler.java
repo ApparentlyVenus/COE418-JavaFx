@@ -42,6 +42,28 @@ public class DBHandler {
         return tables;
     }
 
+    // ✅ GET TABLE COLUMNS (for dynamic form)
+    public static List<String> getTableColumns(String tableName) {
+        List<String> columns = new ArrayList<>();
+        String query = "DESCRIBE " + tableName;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                String columnName = rs.getString("Field");
+                String extra = rs.getString("Extra");
+                // Skip auto-increment columns (like id)
+                if (!extra.contains("auto_increment")) {
+                    columns.add(columnName);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Error getting columns: " + e.getMessage());
+        }
+        return columns;
+    }
+
     // ✅ DESCRIBE TABLE STRUCTURE
     public static String getTableStructure(String tableName) {
         StringBuilder structure = new StringBuilder();
